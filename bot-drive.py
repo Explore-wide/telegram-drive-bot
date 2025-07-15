@@ -94,5 +94,5 @@ def set_webhook():
 # Uncomment this line to set the webhook when the bot starts
 # set_webhook()
 
-if name == "__main__":
+if __name__ == "__main__":
     app.run(debug=True)
