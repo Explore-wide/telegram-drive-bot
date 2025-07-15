@@ -1,9 +1,6 @@
 services:
   - type: web
     name: telegram-drive-bot
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn bot_drive:app
-    envVars:
-      - key: BOT_TOKEN
-        value: 7765218657:AAFoqWQHdb60mDlyXfHi7_6EevAbbCKr39w
+    startCommand: python bot-drive.py
