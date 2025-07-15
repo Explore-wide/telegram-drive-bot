@@ -12,7 +12,7 @@ from telegram.ext import Application
 BOT_TOKEN = os.getenv("7765218657:AAFoqWQHdb60mDlyXfHi7_6EevAbbCKr39w")
 
 # Google Drive service setup
-SERVICE_ACCOUNT_FILE = 'telegramdrivebot-466008-a4719bd7b9e8.json'
+SERVICE_ACCOUNT_FILE = 'drive-key.json'
 DRIVE_FOLDER_ID = '1AkG8phkFnXoa1bsziMZaUBADjJhh-0Vw'
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
