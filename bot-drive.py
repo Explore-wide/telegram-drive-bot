@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Telegram bot token from .env file
-BOT_TOKEN = os.getenv(7765218657:AAFoqWQHdb60mDlyXfHi7_6EevAbbCKr39w)
+BOT_TOKEN = os.getenv("7765218657:AAFoqWQHdb60mDlyXfHi7_6EevAbbCKr39w")
 
 # Google Drive service setup
 SERVICE_ACCOUNT_FILE = 'drive-key.json'
