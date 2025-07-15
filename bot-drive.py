@@ -6,9 +6,13 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from flask import Flask, request
-from telegram.ext import Application
+import requests
+from dotenv import load_dotenv
 
-# Telegram bot token
+# Load environment variables from .env file
+load_dotenv()
+
+# Telegram bot token from .env file
 BOT_TOKEN = os.getenv("7765218657:AAFoqWQHdb60mDlyXfHi7_6EevAbbCKr39w")
 
 # Google Drive service setup
@@ -20,13 +24,17 @@ credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 drive_service = build('drive', 'v3', credentials=credentials)
 
+# Flask app setup
 app = Flask(__name__)
+
+# Telegram bot application setup
 tg_app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-
+# Define the start command for the bot
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("سلام! فایل رو بفرست تا آپلودش کنم.")
 
+# Define the file upload functionality
 async def upload_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.document:
         await update.message.reply_text("فایل ارسال نشده!")
@@ -60,12 +68,31 @@ async def upload_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
     await update.message.reply_text(f"✅ آپلود شد:\n{link}")
 
+# Add handlers to the bot
 tg_app.add_handler(CommandHandler("start", start))
 tg_app.add_handler(MessageHandler(filters.Document.ALL, upload_file))
 
-# Webhook endpoint
+# Set up the Webhook for the bot
 @app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
-async def webhook():
+def webhook():
     update = Update.de_json(request.get_json(force=True), tg_app.bot)
-    await tg_app.process_update(update)
+    tg_app.process_update(update)
     return "ok"
+
+# Function to set the webhook for Telegram
+def set_webhook():
+    TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
+    WEBHOOK_URL = f"https://your-render-app-url/webhook/{BOT_TOKEN}"  # Replace with your Render app URL
+
+    response = requests.get(TELEGRAM_API_URL, params={"url": WEBHOOK_URL})
+
+    if response.status_code == 200:
+        print("Webhook set successfully!")
+    else:
+        print("Failed to set Webhook.")
+
+# Uncomment this line to set the webhook when the bot starts
+# set_webhook()
+
+if name == "__main__":
+    app.run(debug=True)
