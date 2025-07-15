@@ -1,43 +1,31 @@
 import os
 import io
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from flask import Flask, request
-import requests
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Telegram bot token from .env file
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
-# Google Drive service setup
 SERVICE_ACCOUNT_FILE = 'drive-key.json'
-DRIVE_FOLDER_ID = '1AkG8phkFnXoa1bsziMZaUBADjJhh-0Vw'
+DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID")
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 drive_service = build('drive', 'v3', credentials=credentials)
 
-# Flask app setup
-app = Flask(__name__)
+app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# Telegram bot application setup
-tg_app = ApplicationBuilder().token(BOT_TOKEN).build()
-
-# Define the start command for the bot
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("سلام! فایل رو بفرست تا آپلودش کنم.")
+    await update.message.reply_text("سلام! فایل رو بفرست تا آپلود کنم.")
 
-# Define the file upload functionality
 async def upload_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.document:
-        await update.message.reply_text("فایل ارسال نشده!")
+        await update.message.reply_text("لطفاً فایل ارسال کن!")
         return
 
     file = await update.message.document.get_file()
@@ -65,35 +53,11 @@ async def upload_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ).execute()
 
     file_id = uploaded_file.get('id')
-    link = f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
-    await update.message.reply_text(f"✅ آپلود شد:\n{link}")
+    link = f"https://drive.google.com/file/d/{file_id}/view"
+    await update.message.reply_text(f"✅ فایل آپلود شد:\n{link}")
 
-# Add handlers to the bot
-tg_app.add_handler(CommandHandler("start", start))
-tg_app.add_handler(MessageHandler(filters.Document.ALL, upload_file))
-
-# Set up the Webhook for the bot
-@app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), tg_app.bot)
-    tg_app.process_update(update)
-    return "ok"
-
-# Function to set the webhook for Telegram
-def set_webhook():
-    TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
-    WEBHOOK_URL = f"https://your-render-app-url/webhook/{BOT_TOKEN}"  # Replace with your Render app URL
-
-    response = requests.get(TELEGRAM_API_URL, params={"url": WEBHOOK_URL})
-
-    if response.status_code == 200:
-        print("Webhook set successfully!")
-    else:
-        print("Failed to set Webhook.")
-
-# Uncomment this line to set the webhook when the bot starts
-# set_webhook()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(MessageHandler(filters.Document.ALL, upload_file))
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run_polling()
