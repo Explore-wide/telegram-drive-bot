@@ -58,5 +58,8 @@ async def upload_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
 app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.Document.ALL, upload_file))
 
+import os
+
 if __name__ == "__main__":
-    app.run_polling()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
