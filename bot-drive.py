@@ -11,8 +11,7 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 SERVICE_ACCOUNT_FILE = 'drive-key.json'
-DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID")
-
+DRIVE_FOLDER_ID = '1AkG8phkFnXoa1bsziMZaUBADjJhh-0Vw'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
