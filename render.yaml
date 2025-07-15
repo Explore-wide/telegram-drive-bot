@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: telegram-drive-bot
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot-drive.py
